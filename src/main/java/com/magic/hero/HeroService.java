@@ -1,5 +1,7 @@
 package com.magic.hero;
 
+import com.magic.magic.Magic;
+import com.magic.magic.MagicRepository;
 import com.magic.system.exception.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import java.util.List;
 public class HeroService {
 
   private final HeroRepository heroRepository;
+  private final MagicRepository magicRepository;
 
   public Hero findById(Integer heroId) throws ObjectNotFoundException {
     Hero hero = heroRepository.findById(heroId)
@@ -46,4 +49,14 @@ public class HeroService {
     return updatedHero;
   }
 
+  public void assignMagic(Integer heroId, String magicId) throws ObjectNotFoundException {
+    Hero hero = heroRepository.findById(heroId)
+            .orElseThrow(() -> new ObjectNotFoundException("hero", heroId));
+    Magic magicToBeAssigned = magicRepository.findById(magicId)
+            .orElseThrow(() -> new ObjectNotFoundException("magic", magicId));
+    if (magicToBeAssigned.getOwner() != null) {
+      magicToBeAssigned.getOwner().removeMagic(magicToBeAssigned);
+    }
+    hero.addMagic(magicToBeAssigned);
+  }
 }

@@ -54,4 +54,10 @@ public class HeroController {
     HeroDto dto = toHeroDto.convert(update);
     return new Result(true, StatusCode.SUCCESS, "Update Hero Success.", dto);
   }
+  @PatchMapping("/{heroId}/magics/{magicId}")
+  public Result assignMagic(@PathVariable Integer heroId,
+                            @PathVariable String magicId) throws ObjectNotFoundException {
+    heroService.assignMagic(heroId, magicId);
+    return new Result(true, StatusCode.SUCCESS, "Magic Assignment Success.");
+  }
 }

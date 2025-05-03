@@ -37,4 +37,9 @@ public class Hero {
       magics.forEach(m -> m.setOwner(null));
       this.magics = List.of();
    }
+
+   public void removeMagic(Magic magic) {
+      magics.remove(magic);
+      magic.setOwner(null);
+   }
 }
