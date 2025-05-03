@@ -2,6 +2,8 @@ package com.magic.hero;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.magic.magic.Magic;
+import com.magic.magic.MagicRepository;
 import com.magic.system.exception.ObjectNotFoundException;
 import com.magic.utils.HeroGenerator;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,17 +29,14 @@ class HeroServiceTest {
 
   @Mock
   HeroRepository heroRepository;
-
-  @Autowired
-  ObjectMapper objectMapper;
+  @Mock
+  MagicRepository magicRepository;
 
   @InjectMocks
   HeroService heroService;
 
-//  @Autowired
-//  HeroGenerator heroGenerator;
-
   List<Hero> heroes = new ArrayList<>();
+
   @BeforeEach
   void setUp() {
     Hero h1 = HeroGenerator.getH1();
@@ -153,4 +152,42 @@ class HeroServiceTest {
             .hasMessage("Could not find hero with id 9");
     verify(heroRepository, times(1)).findById(9);
   }
+  @Test
+  void assignMagicSuccess() throws ObjectNotFoundException {
+    Magic magic = new Magic();
+    magic.setId("001");
+    magic.setName("Cap shop");
+    magic.setDescription("bad gun");
+
+    Hero hero = new Hero();
+    hero.setId(2);
+    hero.setName("kim");
+    hero.addMagic(magic);
+
+    Hero newHeroForGetMagic = new Hero();
+    newHeroForGetMagic.setId(3);
+    newHeroForGetMagic.setName("woo");
+
+    given(heroRepository.findById(3)).willReturn(Optional.of(newHeroForGetMagic));
+    given(magicRepository.findById("001")).willReturn(Optional.of(magic));
+
+    heroService.assignMagic(3, "001");
+
+    assertThat(magic.getOwner().getId()).isEqualTo(3);
+    assertThat(newHeroForGetMagic.getMagics().size()).isEqualTo(1);
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -137,7 +137,6 @@ class HeroControllerTest {
   @Test
   void updateHeroNotFound() throws Exception {
     // Given.
-
     HeroDto dto = new HeroDto(9, "update Hero", 0);
 
     String json = objectMapper.writeValueAsString(dto);
@@ -149,5 +148,13 @@ class HeroControllerTest {
                     .contentType(MediaType.APPLICATION_JSON).content(json))
             .andExpect(jsonPath("$.flag").value(false))
             .andExpect(jsonPath("$.message").value("Could not find hero with id 9"));
+  }
+
+  @Test
+  void magicAssignSuccess() throws Exception {
+    doNothing().when(heroService).assignMagic(3, "001");
+
+    mockMvc.perform(patch("/3/magics/001").accept(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.flag").value(true));
   }
 }
