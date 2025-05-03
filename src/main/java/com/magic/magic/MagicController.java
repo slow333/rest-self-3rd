@@ -1,0 +1,63 @@
+package com.magic.magic;
+
+import com.magic.system.Result;
+import com.magic.system.StatusCode;
+import com.magic.system.exception.ObjectNotFoundException;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("${api.endpoint.baseUrl}/magics")
+public class MagicController {
+
+  private final MagicService magicService;
+  private final ToMagicDto toMagicDto;
+  private final ToMagicEntity toMagicEntity;
+
+  public MagicController(MagicService magicService, ToMagicDto toMagicDto, ToMagicEntity toMagicEntity) {
+    this.magicService = magicService;
+    this.toMagicDto = toMagicDto;
+    this.toMagicEntity = toMagicEntity;
+  }
+
+  @GetMapping("/{magicId}")
+  public Result findMagicById(@PathVariable String magicId) throws ObjectNotFoundException {
+    Magic magic = magicService.findById(magicId);
+    MagicDto magicDto = toMagicDto.convert(magic);
+    return new Result(true, StatusCode.SUCCESS, "Find One Success.", magicDto);
+  }
+
+  @GetMapping()
+  public Result findAll(){
+    List<Magic> magics = magicService.findAll();
+    List<MagicDto> magicDtos = magics.stream()
+            .map(toMagicDto::convert)
+            .toList();
+    return new Result(true, StatusCode.SUCCESS, "Find All Success.", magicDtos);
+  }
+  @PostMapping
+  public Result addMagic(@Valid @RequestBody MagicDto magicDto){
+    Magic magic = toMagicEntity.convert(magicDto);
+    Magic newMagic = magicService.add(magic);
+    MagicDto magicDtoSaved = toMagicDto.convert(newMagic);
+
+    return new Result(true, StatusCode.SUCCESS, "Add Magic Success.", magicDtoSaved);
+  }
+  @PutMapping("/{magicId}")
+  public Result updateMagic(@PathVariable String magicId,
+                            @Valid @RequestBody MagicDto magicDto) throws ObjectNotFoundException {
+    Magic convertedMagic = toMagicEntity.convert(magicDto);
+    Magic update = magicService.update(magicId, convertedMagic);
+    MagicDto dto = toMagicDto.convert(update);
+
+    return new Result(true, StatusCode.SUCCESS, "Update Magic Success.", dto);
+  }
+
+  @DeleteMapping("/{magicId}")
+  public Result deleteMagic(@PathVariable String magicId) throws ObjectNotFoundException {
+    magicService.delete(magicId);
+    return new Result(true, StatusCode.SUCCESS, "Delete Magic Success.");
+  }
+}
