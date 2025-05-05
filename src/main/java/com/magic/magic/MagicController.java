@@ -11,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.endpoint.baseUrl}/magics")
@@ -34,20 +35,21 @@ public class MagicController {
   }
 
   @GetMapping // 기본 적으로 findAll() page 없는 것을 포함함
-  public Result findAll(Pageable pageable){
+  public Result findAll(Pageable pageable) {
     Page<Magic> magicsPage = magicService.findAll(pageable);
     Page<MagicDto> magicDtosPage = magicsPage.map(toMagicDto::convert);
     return new Result(true, StatusCode.SUCCESS, "Find All Success.", magicDtosPage);
   }
 
   @PostMapping
-  public Result addMagic(@Valid @RequestBody MagicDto magicDto){
+  public Result addMagic(@Valid @RequestBody MagicDto magicDto) {
     Magic magic = toMagicEntity.convert(magicDto);
     Magic newMagic = magicService.add(magic);
     MagicDto magicDtoSaved = toMagicDto.convert(newMagic);
 
     return new Result(true, StatusCode.SUCCESS, "Add Magic Success.", magicDtoSaved);
   }
+
   @PutMapping("/{magicId}")
   public Result updateMagic(@PathVariable String magicId,
                             @Valid @RequestBody MagicDto magicDto) throws ObjectNotFoundException {
@@ -62,5 +64,12 @@ public class MagicController {
   public Result deleteMagic(@PathVariable String magicId) throws ObjectNotFoundException {
     magicService.delete(magicId);
     return new Result(true, StatusCode.SUCCESS, "Delete Magic Success.");
+  }
+
+  @PostMapping("/search")
+  public Result findMagicByKeyword(@RequestBody Map<String, String> query, Pageable pageable) {
+    Page<Magic> magicsPage = magicService.findByQuery(query, pageable);
+    Page<MagicDto> magicDtosPage = magicsPage.map(toMagicDto::convert);
+    return new Result(true, StatusCode.SUCCESS, "Find Magic By Query Success.", magicDtosPage);
   }
 }
