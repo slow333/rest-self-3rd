@@ -41,10 +41,9 @@ public class UserController {
   @PutMapping("/{userId}")
   public Result updateUser(
           @PathVariable Long userId,
-          @Valid @RequestBody SiteUser siteUser) throws ObjectNotFoundException {
-    SiteUser su = userService.updateUser(userId, siteUser);
-    SiteUserDto dto = new ToSiteUserDto().convert(su);
-    return new Result(true, StatusCode.SUCCESS, "Update User Success.", dto);
+          @Valid @RequestBody SiteUserDto dto) throws ObjectNotFoundException {
+    SiteUserDto suDto = userService.updateUser(userId, dto);
+    return new Result(true, StatusCode.SUCCESS, "Update User Success.", suDto);
   }
 
   @DeleteMapping("/{userId}")

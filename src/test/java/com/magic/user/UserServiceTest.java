@@ -116,22 +116,17 @@ class UserServiceTest {
     old.setRoles("user");
     old.setEnabled(true);
 
-    SiteUser update = new SiteUser();
-    update.setId(3L);
-    update.setPassword("password");
-    update.setUsername("newUser");
-    update.setRoles("user admin");
-    update.setEnabled(false);
+    SiteUserDto update = new SiteUserDto(3L, "newUser", "user admin", false);
 
     given(userRepository.findById(3L)).willReturn(Optional.of(old));
-    given(userRepository.save(old)).willReturn(update);
+    given(userRepository.save(old)).willReturn(old);
 
-    SiteUser siteUser = userService.updateUser(3L, update);
+    SiteUserDto siteUser = userService.updateUser(3L, update);
 
-    assertThat(siteUser.getId()).isEqualTo(update.getId());
-    assertThat(siteUser.getUsername()).isEqualTo(update.getUsername());
-    assertThat(siteUser.getRoles()).isEqualTo(update.getRoles());
-    assertThat(siteUser.isEnabled()).isEqualTo(update.isEnabled());
+    assertThat(siteUser.id()).isEqualTo(update.id());
+    assertThat(siteUser.username()).isEqualTo(update.username());
+    assertThat(siteUser.roles()).isEqualTo(update.roles());
+    assertThat(siteUser.enabled()).isEqualTo(update.enabled());
     verify(userRepository, times(1)).save(old);
   }
   @Test
@@ -143,16 +138,11 @@ class UserServiceTest {
     old.setRoles("user");
     old.setEnabled(true);
 
-    SiteUser update = new SiteUser();
-    update.setId(3L);
-    update.setPassword("password");
-    update.setUsername("newUser");
-    update.setRoles("user admin");
-    update.setEnabled(false);
+    SiteUserDto update = new SiteUserDto(3L, "newUser", "user admin", false);
 
     given(userRepository.findById(3L)).willReturn(Optional.empty());
     Throwable thrown = catchThrowable(() -> {
-      SiteUser siteUser = userService.updateUser(3L, update);
+      SiteUserDto siteUser = userService.updateUser(3L, update);
     });
 
     assertThat(thrown).isInstanceOf(ObjectNotFoundException.class)

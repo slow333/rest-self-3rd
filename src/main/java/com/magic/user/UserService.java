@@ -26,15 +26,16 @@ public class UserService {
     return userRepository.save(siteUser);
   }
 
-  public SiteUser updateUser(Long userId, SiteUser update) throws ObjectNotFoundException {
+  public SiteUserDto updateUser(Long userId, SiteUserDto update) throws ObjectNotFoundException {
     SiteUser oldUser = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("user", userId));
-    oldUser.setUsername(update.getUsername());
-    oldUser.setEnabled(update.isEnabled());
-    oldUser.setRoles(update.getRoles());
+    oldUser.setUsername(update.username());
+    oldUser.setEnabled(update.enabled());
+    oldUser.setRoles(update.roles());
 
     SiteUser updatedSiteUser = userRepository.save(oldUser);
-    return updatedSiteUser;
+    SiteUserDto dto = new ToSiteUserDto().convert(updatedSiteUser);
+    return dto;
   }
 
   public void deleteUser(Long userId) throws ObjectNotFoundException {

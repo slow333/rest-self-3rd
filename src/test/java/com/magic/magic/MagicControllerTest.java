@@ -15,9 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -114,6 +119,26 @@ class MagicControllerTest {
             .andExpect(jsonPath("$.message").value("Find All Success."))
             .andExpect(jsonPath("$.data", Matchers.hasSize(3)));
   }
+
+  @Test
+  void findAllPageSuccess() throws Exception {
+    // Given.
+    Pageable pageable = PageRequest.of(0, 2);
+    PageImpl<Magic> magicPage = new PageImpl<>(magics, pageable, magics.size());
+
+    MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+    params.add("page", "0");
+    params.add("size", "2");
+    params.add("sort", "name,desc");
+
+    given(magicService.findAll(Mockito.any(Pageable.class))).willReturn(magicPage);
+    // When and Then.
+    mockMvc.perform(get(url).accept(MediaType.APPLICATION_JSON).params(params))
+            .andExpect(jsonPath("$.flag").value(true))
+            .andExpect(jsonPath("$.code").value(StatusCode.SUCCESS))
+            .andExpect(jsonPath("$.message").value("Find All Success."));
+  }
+
   @Test
   void addMagicSuccess() throws Exception {
     // Given

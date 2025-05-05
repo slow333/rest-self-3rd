@@ -3,6 +3,8 @@ package com.magic.magic;
 import com.magic.system.IdWorker;
 import com.magic.system.exception.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,11 @@ public class MagicService {
   public List<Magic> findAll() {
     return magicRepository.findAll();
   }
+
+  public Page<Magic> findAll(Pageable pageable) {
+    return magicRepository.findAll(pageable);
+  }
+
   public Magic add(Magic magic){
     magic.setId(idWorker.nextId() + "");
     return magicRepository.save(magic);

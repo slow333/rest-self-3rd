@@ -134,15 +134,10 @@ class UserControllerTest {
     old.setRoles("admin");
     old.setEnabled(true);
 
-    SiteUser update = new SiteUser();
-    update.setId(1L);
-    update.setUsername("newUser");
-    update.setPassword("<PASSWORD>");
-    update.setRoles("admin user");
-    update.setEnabled(false);
+    SiteUserDto update = new SiteUserDto(1L, "newUser", "user admin", false);
 
     String json = objectMapper.writeValueAsString(update);
-    given(userService.updateUser(eq(1L), Mockito.any(SiteUser.class))).willReturn(update);
+    given(userService.updateUser(eq(1L), Mockito.any(SiteUserDto.class))).willReturn(update);
 
     mockMvc.perform(put(url+"/1").accept(MediaType.APPLICATION_JSON)
             .content(json).contentType(MediaType.APPLICATION_JSON))
@@ -168,7 +163,7 @@ class UserControllerTest {
     update.setEnabled(false);
 
     String json = objectMapper.writeValueAsString(update);
-    given(userService.updateUser(eq(1L), Mockito.any(SiteUser.class))).willThrow(new ObjectNotFoundException("user", 1L));
+    given(userService.updateUser(eq(1L), Mockito.any(SiteUserDto.class))).willThrow(new ObjectNotFoundException("user", 1L));
 
     mockMvc.perform(put(url+"/1").accept(MediaType.APPLICATION_JSON)
                     .content(json).contentType(MediaType.APPLICATION_JSON))

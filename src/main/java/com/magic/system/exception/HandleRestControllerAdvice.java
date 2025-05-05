@@ -30,7 +30,7 @@ public class HandleRestControllerAdvice {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
-  Result name(MethodArgumentNotValidException ex) {
+  Result handleMethodArgNotValidException(MethodArgumentNotValidException ex) {
     List<ObjectError> errors = ex.getBindingResult().getAllErrors();
     Map<String, String> map = new HashMap<>(errors.size());
     errors.forEach(e -> {
