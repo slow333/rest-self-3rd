@@ -3,6 +3,7 @@ package com.magic.hero;
 import com.magic.system.Result;
 import com.magic.system.StatusCode;
 import com.magic.system.exception.ObjectNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +39,7 @@ public class HeroController {
   }
 
   @PostMapping
-  public Result addHero(@RequestBody HeroDto heroDto) {
+  public Result addHero(@Valid @RequestBody HeroDto heroDto) {
     Hero hero = toHeroEntity.convert(heroDto);
     Hero newHero = heroService.add(hero);
     HeroDto dto = toHeroDto.convert(newHero);
@@ -48,7 +49,7 @@ public class HeroController {
   @PutMapping("/{heroId}")
   public Result updateHero(
           @PathVariable Integer heroId,
-          @RequestBody HeroDto heroDto) throws ObjectNotFoundException {
+          @Valid @RequestBody HeroDto heroDto) throws ObjectNotFoundException {
     Hero converted = toHeroEntity.convert(heroDto);
     Hero update = heroService.update(heroId, converted);
     HeroDto dto = toHeroDto.convert(update);

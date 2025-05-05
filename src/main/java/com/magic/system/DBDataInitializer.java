@@ -4,6 +4,8 @@ import com.magic.hero.Hero;
 import com.magic.hero.HeroRepository;
 import com.magic.magic.Magic;
 import com.magic.magic.MagicRepository;
+import com.magic.user.SiteUser;
+import com.magic.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -14,6 +16,7 @@ public class DBDataInitializer implements CommandLineRunner {
 
   private final HeroRepository heroRepository;
   private final MagicRepository magicRepository;
+  private final UserRepository userRepository;
 
   @Override
   public void run(String... args) throws Exception {
@@ -70,5 +73,42 @@ public class DBDataInitializer implements CommandLineRunner {
     heroRepository.save(h3);
 
     magicRepository.save(m6);
+
+    SiteUser su1 = new SiteUser();
+    su1.setPassword("321");
+    su1.setUsername("admin");
+    su1.setRoles("admin");
+    su1.setEnabled(true);
+
+    SiteUser su2 = new SiteUser();
+    su2.setPassword("123");
+    su2.setUsername("user");
+    su2.setRoles("user");
+    su2.setEnabled(true);
+
+    SiteUser su3 = new SiteUser();
+    su3.setPassword("123");
+    su3.setUsername("guest");
+    su3.setRoles("user");
+    su3.setEnabled(true);
+
+    SiteUser su4 = new SiteUser();
+    su4.setPassword("123");
+    su4.setUsername("anonymous");
+    su4.setRoles("user");
+    su4.setEnabled(false);
+
+    userRepository.save(su1);
+    userRepository.save(su2);
+    userRepository.save(su3);
+    userRepository.save(su4);
+
+    System.out.println("DB Data Initialized");
+    System.out.println("--------------------------------------");
+    System.out.println("id: " + su1.getId() + ", username: " + su1.getUsername());
+    System.out.println("id: " + su2.getId() + ", username: " + su2.getUsername());
+    System.out.println("id: " + su3.getId() + ", username: " + su3.getUsername());
+    System.out.println("id: " + su4.getId() + ", username: " + su4.getUsername());
+    System.out.println("--------------------------------------");
   }
 }

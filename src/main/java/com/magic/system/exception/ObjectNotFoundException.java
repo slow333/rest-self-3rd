@@ -10,5 +10,7 @@ public class ObjectNotFoundException extends Exception {
     super("Could not find "+ name + " with id " + id);
   }
 
-
+  public ObjectNotFoundException(String name, Long id) {
+    super("Could not find "+ name + " with id " + id);
+  }
 }
