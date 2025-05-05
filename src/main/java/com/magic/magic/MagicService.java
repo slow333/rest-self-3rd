@@ -1,14 +1,19 @@
 package com.magic.magic;
 
+import ch.qos.logback.core.util.StringUtil;
 import com.magic.system.IdWorker;
+import com.magic.system.MagicSpecs;
 import com.magic.system.exception.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -50,5 +55,22 @@ public class MagicService {
     magicRepository.findById(magicId)
             .orElseThrow(() -> new ObjectNotFoundException("magic", magicId));
     magicRepository.deleteById(magicId);
+  }
+
+  public Page<Magic> findByQuery(Map<String, String> query, Pageable pageable) {
+    Specification<Magic> spec = Specification.where(null);
+    if(StringUtils.hasLength(query.get("name"))){
+      spec = spec.and(MagicSpecs.nameLike(query.get("name")));
+    }
+    if(StringUtils.hasLength(query.get("description"))){
+      spec = spec.and(MagicSpecs.containsDescription(query.get("description")));
+    }
+    if(StringUtils.hasLength(query.get("id"))){
+      spec = spec.and(MagicSpecs.hasId(query.get("id")));
+    }
+    if(StringUtils.hasLength(query.get("ownerName"))){
+      spec = spec.and(MagicSpecs.hasOwner(query.get("ownerName")));
+    }
+    return magicRepository.findAll(spec, pageable);
   }
 }
