@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 @Entity
 @Getter
@@ -24,9 +25,14 @@ public class Hero {
    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, mappedBy = "owner")
    private List<Magic> magics = new ArrayList<>();
 
-   public void addMagic(Magic magic) {
+   public void addMagic(@NotNull Magic magic) {
       magic.setOwner(this);
       magics.add(magic);
+   }
+
+   public void removeMagic(Magic magic) {
+      magics.remove(magic);
+      magic.setOwner(null);
    }
 
    public Integer getNumberOfMagics() {
@@ -36,10 +42,5 @@ public class Hero {
    public void deleteAllMagic() {
       magics.forEach(m -> m.setOwner(null));
       this.magics = List.of();
-   }
-
-   public void removeMagic(Magic magic) {
-      magics.remove(magic);
-      magic.setOwner(null);
    }
 }

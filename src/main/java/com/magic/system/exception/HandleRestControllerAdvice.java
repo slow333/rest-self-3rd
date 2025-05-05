@@ -19,9 +19,15 @@ public class HandleRestControllerAdvice {
 
   @ExceptionHandler(ObjectNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
-  public Result handleMagicNotFound(ObjectNotFoundException ex){
+  public Result handleObjectNotFound(ObjectNotFoundException ex){
     return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
   }
+  @ExceptionHandler(UsernameNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public Result handleUsernameNotFound(UsernameNotFoundException ex){
+    return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   Result name(MethodArgumentNotValidException ex) {
@@ -34,5 +40,16 @@ public class HandleRestControllerAdvice {
     });
     return new Result(false, StatusCode.BAD_REQUEST,
             "Provided arguments invalid.", map);
+  }
+
+  @ExceptionHandler(Exception.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public Result handleException(Exception ex){
+    return new Result(false, StatusCode.INTERNAL_SERVER_ERROR, ex.getMessage());
+  }
+  @ExceptionHandler(RuntimeException.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public Result handleRuntimeException(RuntimeException ex){
+    return new Result(false, StatusCode.INTERNAL_SERVER_ERROR, ex.getMessage());
   }
 }
