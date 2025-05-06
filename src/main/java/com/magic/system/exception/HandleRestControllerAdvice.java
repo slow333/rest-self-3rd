@@ -3,8 +3,11 @@ package com.magic.system.exception;
 import com.magic.system.Result;
 import com.magic.system.StatusCode;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,6 +32,24 @@ public class HandleRestControllerAdvice {
   public Result handleUsernameNotFound(Exception ex){
     return new Result(false, StatusCode.UNAUTHORIZED,
             "The username or password is invalid.", ex.getMessage());
+  }
+  @ExceptionHandler(InvalidBearerTokenException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public Result handleInvalidBearerToken(InvalidBearerTokenException ex){
+    return new Result(false, StatusCode.UNAUTHORIZED,
+            "The token is invalid.", ex.getMessage());
+  }
+  @ExceptionHandler(AccessDeniedException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public Result handleAccessDenied(AccessDeniedException ex){
+    return new Result(false, StatusCode.UNAUTHORIZED,
+            "No Permission.", ex.getMessage());
+  }
+
+  @ExceptionHandler(InsufficientAuthenticationException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  Result handleInsufficientAuthentication(InsufficientAuthenticationException ex){
+    return new Result(true, StatusCode.UNAUTHORIZED, "Login credentials are missing", ex.getMessage());
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
