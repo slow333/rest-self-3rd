@@ -18,9 +18,8 @@ public class HeroService {
   private final MagicRepository magicRepository;
 
   public Hero findById(Integer heroId) throws ObjectNotFoundException {
-    Hero hero = heroRepository.findById(heroId)
+    return heroRepository.findById(heroId)
             .orElseThrow(() -> new ObjectNotFoundException("hero", heroId));
-    return hero;
   }
 
   public List<Hero> findAll() {
@@ -37,16 +36,14 @@ public class HeroService {
   }
 
   public Hero add(Hero hero) {
-    Hero newHero = heroRepository.save(hero);
-    return newHero;
+    return heroRepository.save(hero);
   }
 
   public Hero update(Integer heroId, Hero update) throws ObjectNotFoundException {
     Hero oldHero = heroRepository.findById(heroId)
             .orElseThrow(() -> new ObjectNotFoundException("hero", heroId));
     oldHero.setName(update.getName());
-    Hero updatedHero = heroRepository.save(oldHero);
-    return updatedHero;
+    return heroRepository.save(oldHero);
   }
 
   public void assignMagic(Integer heroId, String magicId) throws ObjectNotFoundException {

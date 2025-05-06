@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 public class MagicControllerIntegrationTest {
 
   @Autowired
@@ -54,7 +54,7 @@ public class MagicControllerIntegrationTest {
     mockMvc.perform(get(url).accept(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.flag").value(true))
             .andExpect(jsonPath("$.message").value("Find All Success."))
-            .andExpect(jsonPath("$.data", Matchers.hasSize(6)));
+            .andExpect(jsonPath("$.data.content", Matchers.hasSize(6)));
   }
   @Test
   void addSuccess() throws Exception {

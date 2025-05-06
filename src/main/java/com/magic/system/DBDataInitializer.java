@@ -5,7 +5,7 @@ import com.magic.hero.HeroRepository;
 import com.magic.magic.Magic;
 import com.magic.magic.MagicRepository;
 import com.magic.user.SiteUser;
-import com.magic.user.UserRepository;
+import com.magic.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -16,7 +16,7 @@ public class DBDataInitializer implements CommandLineRunner {
 
   private final HeroRepository heroRepository;
   private final MagicRepository magicRepository;
-  private final UserRepository userRepository;
+  private final UserService userService;
 
   @Override
   public void run(String... args) throws Exception {
@@ -98,10 +98,10 @@ public class DBDataInitializer implements CommandLineRunner {
     su4.setRoles("user");
     su4.setEnabled(false);
 
-    userRepository.save(su1);
-    userRepository.save(su2);
-    userRepository.save(su3);
-    userRepository.save(su4);
+    userService.createUser(su1);
+    userService.createUser(su2);
+    userService.createUser(su3);
+    userService.createUser(su4);
 
     System.out.println("DB Data Initialized");
     System.out.println("--------------------------------------");

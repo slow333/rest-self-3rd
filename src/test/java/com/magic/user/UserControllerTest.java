@@ -1,10 +1,8 @@
 package com.magic.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magic.system.StatusCode;
 import com.magic.system.exception.ObjectNotFoundException;
-import com.magic.system.exception.UsernameNotFoundException;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +27,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
 
   @MockitoBean
@@ -64,6 +62,7 @@ class UserControllerTest {
     users.add(su2);
   }
 
+/*
   @Test
   void findByUsernameSuccess() throws Exception {
     // Given.
@@ -73,7 +72,7 @@ class UserControllerTest {
     su.setPassword("123");
     su.setRoles("admin");
     su.setEnabled(true);
-    given(userService.findByUsername("user")).willReturn(su);
+    given(userService.("user")).willReturn(su);
 
     mockMvc.perform(get(url + "/user").accept(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.flag").value(true))
@@ -93,6 +92,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
             .andExpect(jsonPath("$.message").value("Could not find user with username test"));
   }
+*/
 
   @Test
   void findAll() throws Exception {

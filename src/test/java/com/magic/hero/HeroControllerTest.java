@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -25,7 +26,7 @@ import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 class HeroControllerTest {
 
   @Autowired
@@ -150,10 +151,11 @@ class HeroControllerTest {
   }
 
   @Test
+  @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
   void magicAssignSuccess() throws Exception {
     doNothing().when(heroService).assignMagic(3, "001");
 
-    mockMvc.perform(patch("/3/magics/001").accept(MediaType.APPLICATION_JSON))
+    mockMvc.perform(patch(url + "/3/magics/004").accept(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.flag").value(true));
   }
 }

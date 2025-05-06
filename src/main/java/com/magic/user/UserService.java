@@ -1,28 +1,29 @@
 package com.magic.user;
 
+import com.magic.security.MyUserPrincipal;
 import com.magic.system.exception.ObjectNotFoundException;
-import com.magic.system.exception.UsernameNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
   private final UserRepository userRepository;
-
-  public SiteUser findByUsername(String username) throws UsernameNotFoundException {
-    return userRepository.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException(username));
-  }
+  private final PasswordEncoder passwordEncoder;
 
   public List<SiteUser> findAll() {
     return userRepository.findAll();
   }
 
   public SiteUser createUser(SiteUser siteUser) {
+    siteUser.setPassword(passwordEncoder.encode(siteUser.getPassword()));
     return userRepository.save(siteUser);
   }
 
@@ -48,5 +49,12 @@ public class UserService {
     SiteUser siteUser = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("user", userId));
     return siteUser;
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String username) {
+    return userRepository.findByUsername(username)
+            .map(MyUserPrincipal::new)
+            .orElseThrow(() -> new UsernameNotFoundException("The username " + username + " is not found."));
   }
 }

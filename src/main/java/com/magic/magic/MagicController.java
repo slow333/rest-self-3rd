@@ -40,6 +40,13 @@ public class MagicController {
     Page<MagicDto> magicDtosPage = magicsPage.map(toMagicDto::convert);
     return new Result(true, StatusCode.SUCCESS, "Find All Success.", magicDtosPage);
   }
+//  @GetMapping
+//  public Result findAll() {
+//    List<Magic> magicsPage = magicService.findAll();
+//    List<MagicDto> magicDtosPage = magicsPage.stream()
+//            .map(toMagicDto::convert).toList();
+//    return new Result(true, StatusCode.SUCCESS, "Find All Success.", magicDtosPage);
+//  }
 
   @PostMapping
   public Result addMagic(@Valid @RequestBody MagicDto magicDto) {

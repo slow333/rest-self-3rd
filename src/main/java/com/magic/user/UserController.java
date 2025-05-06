@@ -3,9 +3,9 @@ package com.magic.user;
 import com.magic.system.Result;
 import com.magic.system.StatusCode;
 import com.magic.system.exception.ObjectNotFoundException;
-import com.magic.system.exception.UsernameNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,12 +17,13 @@ public class UserController {
 
   private final UserService userService;
 
-  @GetMapping("/{username}")
-  public Result findByUsername(@PathVariable String username) throws UsernameNotFoundException {
-    SiteUser user = userService.findByUsername(username);
-    SiteUserDto dto = new ToSiteUserDto().convert(user);
-    return new Result(true, StatusCode.SUCCESS, "Find User Success.", dto);
-  }
+  // 이거는 authController에서 처리함
+//  @GetMapping("/{username}")
+//  public Result findByUsername(@PathVariable String username) throws UsernameNotFoundException {
+//    SiteUser user = userService.findByUsername(username);
+//    SiteUserDto dto = new ToSiteUserDto().convert(user);
+//    return new Result(true, StatusCode.SUCCESS, "Find User Success.", dto);
+//  }
 
   @GetMapping
   public Result findAll(){

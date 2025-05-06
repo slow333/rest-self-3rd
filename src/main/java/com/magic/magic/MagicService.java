@@ -1,6 +1,5 @@
 package com.magic.magic;
 
-import ch.qos.logback.core.util.StringUtil;
 import com.magic.system.IdWorker;
 import com.magic.system.MagicSpecs;
 import com.magic.system.exception.ObjectNotFoundException;

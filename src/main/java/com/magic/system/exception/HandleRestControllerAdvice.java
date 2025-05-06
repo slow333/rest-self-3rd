@@ -3,6 +3,8 @@ package com.magic.system.exception;
 import com.magic.system.Result;
 import com.magic.system.StatusCode;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -22,10 +24,11 @@ public class HandleRestControllerAdvice {
   public Result handleObjectNotFound(ObjectNotFoundException ex){
     return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
   }
-  @ExceptionHandler(UsernameNotFoundException.class)
-  @ResponseStatus(HttpStatus.NOT_FOUND)
-  public Result handleUsernameNotFound(UsernameNotFoundException ex){
-    return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
+  @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public Result handleUsernameNotFound(Exception ex){
+    return new Result(false, StatusCode.UNAUTHORIZED,
+            "The username or password is invalid.", ex.getMessage());
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
