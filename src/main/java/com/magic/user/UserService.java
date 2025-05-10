@@ -1,6 +1,5 @@
 package com.magic.user;
 
-import com.magic.security.MyUserPrincipal;
 import com.magic.system.exception.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,11 +7,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService implements UserDetailsService {
 
   private final UserRepository userRepository;
@@ -22,21 +23,24 @@ public class UserService implements UserDetailsService {
     return userRepository.findAll();
   }
 
+  public SiteUser findById(Long userId) throws ObjectNotFoundException {
+    return userRepository.findById(userId)
+            .orElseThrow(() -> new ObjectNotFoundException("user", userId));
+  }
+
   public SiteUser createUser(SiteUser siteUser) {
     siteUser.setPassword(passwordEncoder.encode(siteUser.getPassword()));
     return userRepository.save(siteUser);
   }
 
-  public SiteUserDto updateUser(Long userId, SiteUserDto update) throws ObjectNotFoundException {
+  public SiteUser updateUser(Long userId, SiteUser update) throws ObjectNotFoundException {
     SiteUser oldUser = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("user", userId));
-    oldUser.setUsername(update.username());
-    oldUser.setEnabled(update.enabled());
-    oldUser.setRoles(update.roles());
+    oldUser.setUsername(update.getUsername());
+    oldUser.setEnabled(update.isEnabled());
+    oldUser.setRoles(update.getRoles());
 
-    SiteUser updatedSiteUser = userRepository.save(oldUser);
-    SiteUserDto dto = new ToSiteUserDto().convert(updatedSiteUser);
-    return dto;
+    return userRepository.save(oldUser);
   }
 
   public void deleteUser(Long userId) throws ObjectNotFoundException {
@@ -45,14 +49,8 @@ public class UserService implements UserDetailsService {
     userRepository.deleteById(userId);
   }
 
-  public SiteUser findById(Long userId) throws ObjectNotFoundException {
-    SiteUser siteUser = userRepository.findById(userId)
-            .orElseThrow(() -> new ObjectNotFoundException("user", userId));
-    return siteUser;
-  }
-
   @Override
-  public UserDetails loadUserByUsername(String username) {
+  public UserDetails loadUserByUsername(String username)  throws UsernameNotFoundException{
     return userRepository.findByUsername(username)
             .map(MyUserPrincipal::new)
             .orElseThrow(() -> new UsernameNotFoundException("The username " + username + " is not found."));

@@ -3,9 +3,11 @@ package com.magic.user;
 import com.magic.system.Result;
 import com.magic.system.StatusCode;
 import com.magic.system.exception.ObjectNotFoundException;
+import com.magic.user.converter.ToSiteUserDto;
+import com.magic.user.converter.ToSiteUserEntity;
+import com.magic.user.dto.UserDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,35 +18,38 @@ import java.util.List;
 public class UserController {
 
   private final UserService userService;
-
-  // 이거는 authController에서 처리함
-//  @GetMapping("/{username}")
-//  public Result findByUsername(@PathVariable String username) throws UsernameNotFoundException {
-//    SiteUser user = userService.findByUsername(username);
-//    SiteUserDto dto = new ToSiteUserDto().convert(user);
-//    return new Result(true, StatusCode.SUCCESS, "Find User Success.", dto);
-//  }
+  private final ToSiteUserDto toSiteUserDto;
+  private final ToSiteUserEntity toSiteUserEntity;
 
   @GetMapping
   public Result findAll(){
     List<SiteUser> siteUsers = userService.findAll();
-    List<SiteUserDto> dtos = siteUsers.stream().map(new ToSiteUserDto()::convert).toList();
+    List<UserDto> dtos = siteUsers.stream().map(toSiteUserDto::convert).toList();
     return new Result(true, StatusCode.SUCCESS, "Find All Success.", dtos);
   }
-
-  @PostMapping
-  public Result createUser(@Valid @RequestBody SiteUser siteUser){
-    SiteUser su = userService.createUser(siteUser);
-    SiteUserDto dto = new ToSiteUserDto().convert(su);
-    return new Result(true, StatusCode.SUCCESS, "Create User Success.", dto);
+  @GetMapping("/{userId}")
+  public Result findUserById(@PathVariable Long userId) throws ObjectNotFoundException {
+    SiteUser su = userService.findById(userId);
+    UserDto suDto = toSiteUserDto.convert(su);
+    return new Result(true, StatusCode.SUCCESS, "Find User Success.", suDto);
   }
 
   @PutMapping("/{userId}")
   public Result updateUser(
           @PathVariable Long userId,
-          @Valid @RequestBody SiteUserDto dto) throws ObjectNotFoundException {
-    SiteUserDto suDto = userService.updateUser(userId, dto);
+          @Valid @RequestBody UserDto userDto) throws ObjectNotFoundException {
+    SiteUser update = toSiteUserEntity.convert(userDto);
+    SiteUser su = userService.updateUser(userId, update);
+    UserDto suDto = toSiteUserDto.convert(su);
+
     return new Result(true, StatusCode.SUCCESS, "Update User Success.", suDto);
+  }
+
+  @PostMapping
+  public Result createUser(@Valid @RequestBody SiteUser siteUser){
+    SiteUser su = userService.createUser(siteUser);
+    UserDto dto = toSiteUserDto.convert(su);
+    return new Result(true, StatusCode.SUCCESS, "Create User Success.", dto);
   }
 
   @DeleteMapping("/{userId}")

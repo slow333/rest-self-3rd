@@ -1,5 +1,7 @@
-package com.magic.hero;
+package com.magic.hero.converter;
 
+import com.magic.hero.Hero;
+import com.magic.hero.dto.HeroDto;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 

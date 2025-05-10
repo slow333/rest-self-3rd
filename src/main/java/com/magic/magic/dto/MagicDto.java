@@ -1,9 +1,7 @@
-package com.magic.magic;
+package com.magic.magic.dto;
 
-import com.magic.hero.Hero;
-import com.magic.hero.HeroDto;
+import com.magic.hero.dto.HeroDto;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.Getter;
 
 public record MagicDto(
         String id,

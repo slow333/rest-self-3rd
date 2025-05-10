@@ -1,11 +1,11 @@
 package com.magic.magic;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.magic.magic.dto.MagicDto;
 import com.magic.system.IdWorker;
 import com.magic.system.StatusCode;
 
 import com.magic.system.exception.ObjectNotFoundException;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

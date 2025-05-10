@@ -1,31 +1,37 @@
 package com.magic.security;
 
+import com.magic.user.MyUserPrincipal;
 import com.magic.user.SiteUser;
-import com.magic.user.SiteUserDto;
-import com.magic.user.ToSiteUserDto;
+import com.magic.user.dto.UserDto;
+import com.magic.user.converter.ToSiteUserDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class AuthService {
 
   private final JwtProvider jwtProvider;
   private final ToSiteUserDto toSiteUserDto;
 
-  public AuthService(JwtProvider jwtProvider, ToSiteUserDto toSiteUserDto) {
-    this.jwtProvider = jwtProvider;
-    this.toSiteUserDto = toSiteUserDto;
-  }
-
   public Map<String, Object> createLoginInfo(Authentication authentication) {
+    // create user
     MyUserPrincipal principal = (MyUserPrincipal) authentication.getPrincipal();
-    SiteUser siteUser = principal.getUser();
-    SiteUserDto siteUserDto = toSiteUserDto.convert(siteUser);
+    SiteUser siteUser = principal.getSiteUser();
+    UserDto userDto = toSiteUserDto.convert(siteUser);
+    // create token
     String token = jwtProvider.generateToken(authentication);
-//    String token = "token is null";
-    Map<String, Object> tokenMap = Map.of("userInfo", siteUserDto, "token", token);
-    return tokenMap;
+
+    Map<String, Object> loginResultMap = new HashMap<>();
+    loginResultMap.put("userInfo", userDto);
+    loginResultMap.put("token", token);
+
+    return loginResultMap;
   }
 }

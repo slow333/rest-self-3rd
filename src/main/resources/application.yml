@@ -10,3 +10,11 @@ spring:
 api:
    endpoint:
       baseUrl: /api/v1
+
+#logging:
+#   level:
+#      root: WARN
+#      org:
+#         springframework:
+#            web: DEBUG
+#         hibernate: ERROR

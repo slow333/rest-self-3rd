@@ -23,7 +23,9 @@ public class SiteUser {
   @NotEmpty(message = "password is required.")
   private String password;
 
+  @NotEmpty(message = "roles are required.")
   private String roles;
+
   private boolean enabled;
 
 }

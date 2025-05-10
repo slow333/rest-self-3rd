@@ -1,13 +1,21 @@
 package com.magic.security;
 
+import com.magic.system.exception.ObjectNotFoundException;
+import com.magic.user.MyUserPrincipal;
+import com.magic.user.SiteUser;
+import com.magic.user.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,11 +34,16 @@ public class JwtProvider {
             .stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(" "));
+
+    MyUserPrincipal principal = (MyUserPrincipal) authentication.getPrincipal();
+    SiteUser siteUser = principal.getSiteUser();
+
     JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuer("self")
             .issuedAt(now)
-            .expiresAt(now.plusSeconds(expiresIn * 60 * 60))
+            .expiresAt(now.plus(expiresIn, ChronoUnit.HOURS))
             .subject(authentication.getName())
+            .claim("userId", siteUser.getId())
             .claim("authorities", authorities)
             .build();
     return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

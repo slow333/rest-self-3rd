@@ -1,5 +1,8 @@
 package com.magic.hero;
 
+import com.magic.hero.converter.ToHeroDto;
+import com.magic.hero.converter.ToHeroEntity;
+import com.magic.hero.dto.HeroDto;
 import com.magic.system.Result;
 import com.magic.system.StatusCode;
 import com.magic.system.exception.ObjectNotFoundException;
