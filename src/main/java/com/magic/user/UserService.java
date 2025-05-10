@@ -2,6 +2,8 @@ package com.magic.user;
 
 import com.magic.system.exception.ObjectNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,10 +38,17 @@ public class UserService implements UserDetailsService {
   public SiteUser updateUser(Long userId, SiteUser update) throws ObjectNotFoundException {
     SiteUser oldUser = userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("user", userId));
-    oldUser.setUsername(update.getUsername());
-    oldUser.setEnabled(update.isEnabled());
-    oldUser.setRoles(update.getRoles());
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
+    // If the user not admin
+    if(auth.getAuthorities().stream()
+            .noneMatch(a -> a.getAuthority().equals("ROLE_admin"))) {
+      oldUser.setUsername(update.getUsername());
+    } else {
+      oldUser.setUsername(update.getUsername());
+      oldUser.setEnabled(update.isEnabled());
+      oldUser.setRoles(update.getRoles());
+    }
     return userRepository.save(oldUser);
   }
 

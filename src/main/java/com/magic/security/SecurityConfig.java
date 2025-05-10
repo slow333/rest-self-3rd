@@ -38,12 +38,15 @@ public class SecurityConfig {
   private final CustomBasicAuthEntryPoint basicAuthEntryPoint;
   private final CustomBearerTokenAuthEntryPoint bearerTokenAuthEntryPoint;
   private final CustomBearerTokenAccessDeniedHandler bearerTokenAccessDeniedHandler;
+  private final UserRequestAuthorizationManager userRequestAuthorizationManager;
 
-  public SecurityConfig(CustomBasicAuthEntryPoint basicAuthEntryPoint, CustomBearerTokenAuthEntryPoint bearerTokenAuthEntryPoint, CustomBearerTokenAccessDeniedHandler bearerTokenAccessDeniedHandler)
+  public SecurityConfig(CustomBasicAuthEntryPoint basicAuthEntryPoint, CustomBearerTokenAuthEntryPoint bearerTokenAuthEntryPoint, CustomBearerTokenAccessDeniedHandler bearerTokenAccessDeniedHandler, UserRequestAuthorizationManager userRequestAuthorizationManager)
           throws NoSuchAlgorithmException {
     this.basicAuthEntryPoint = basicAuthEntryPoint;
     this.bearerTokenAuthEntryPoint = bearerTokenAuthEntryPoint;
     this.bearerTokenAccessDeniedHandler = bearerTokenAccessDeniedHandler;
+    this.userRequestAuthorizationManager = userRequestAuthorizationManager;
+
 
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
     keyPairGenerator.initialize(2048);
@@ -61,9 +64,10 @@ public class SecurityConfig {
     http.authorizeHttpRequests(request -> request
             .requestMatchers(HttpMethod.GET, url + "/magics/**").permitAll()
             .requestMatchers(HttpMethod.GET, url + "/magics/search").permitAll()
-            .requestMatchers(HttpMethod.GET, url + "/users/**").hasAuthority("ROLE_admin")
+            .requestMatchers(HttpMethod.GET, url + "/users").hasAuthority("ROLE_admin")
+            .requestMatchers(HttpMethod.GET, url + "/users/**").access(userRequestAuthorizationManager)
             .requestMatchers(HttpMethod.POST, url + "/users").hasAuthority("ROLE_admin")
-            .requestMatchers(HttpMethod.PUT, url + "/users/**").hasAuthority("ROLE_admin")
+            .requestMatchers(HttpMethod.PUT, url + "/users/**").access(userRequestAuthorizationManager)
             .requestMatchers(HttpMethod.DELETE, url + "/users/**").hasAuthority("ROLE_admin")
             .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
             .anyRequest().authenticated()
