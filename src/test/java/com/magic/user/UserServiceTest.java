@@ -9,6 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
@@ -141,6 +144,14 @@ class UserServiceTest {
 
     given(userRepository.findById(3L)).willReturn(Optional.of(old));
     given(userRepository.save(old)).willReturn(old);
+
+    SiteUser siteUser = new SiteUser();
+    siteUser.setRoles("user");
+    MyUserPrincipal myUserPrincipal = new MyUserPrincipal(siteUser);
+
+    SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
+    emptyContext.setAuthentication(new UsernamePasswordAuthenticationToken(myUserPrincipal, null, myUserPrincipal.getAuthorities()));
+    SecurityContextHolder.setContext(emptyContext);
 
     SiteUser su = userService.updateUser(3L, update);
 
