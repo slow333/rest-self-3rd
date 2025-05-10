@@ -1,4 +1,4 @@
-package com.magic.hero;
+package com.magic.hero.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 

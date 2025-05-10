@@ -1,6 +1,7 @@
 package com.magic.hero;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.magic.hero.dto.HeroDto;
 import com.magic.system.exception.ObjectNotFoundException;
 import com.magic.utils.HeroGenerator;
 import org.hamcrest.Matchers;

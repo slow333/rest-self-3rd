@@ -4,6 +4,7 @@ import com.magic.system.exception.ObjectNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -30,9 +32,10 @@ class UserServiceTest {
   @InjectMocks
   private UserService userService;
 
-  List<SiteUser> users = new ArrayList<>();
+  List<SiteUser> users;
   @BeforeEach
   void setUp() {
+    users = new ArrayList<>();
     SiteUser su1 = new SiteUser();
     su1.setId(1L);
     su1.setPassword("321");
@@ -46,12 +49,28 @@ class UserServiceTest {
     su2.setUsername("user");
     su2.setRoles("user");
     su2.setEnabled(true);
+
+    SiteUser su3 = new SiteUser();
+    su2.setId(3L);
+    su2.setPassword("123");
+    su2.setUsername("kim");
+    su2.setRoles("user");
+    su2.setEnabled(false);
+
     users.add(su1);
     users.add(su2);
+    users.add(su3);
   }
 
-/*  @Test
-  void findByUsernameSuccess() throws UsernameNotFoundException {
+  @Test
+  void findAllSuccess() {
+    given(userRepository.findAll()).willReturn(users);
+    List<SiteUser> userList = userService.findAll();
+    assertThat(userList.size()).isEqualTo(3);
+    verify(userRepository, times(1)).findAll();
+  }
+  @Test
+  void findByIdSuccess() throws ObjectNotFoundException {
     // Given
     SiteUser su = new SiteUser();
     su.setId(2L);
@@ -60,43 +79,36 @@ class UserServiceTest {
     su.setRoles("user");
     su.setEnabled(true);
 
-    given(userRepository.findByUsername(su.getUsername())).willReturn(Optional.of(su));
+    given(userRepository.findById(2L)).willReturn(Optional.of(su));
     // When
-    SiteUser siteUser = userService.findByUsername("user");
+    SiteUser siteUser = userService.findById(2L);
     // Then
     assertThat(siteUser.getUsername()).isEqualTo(su.getUsername());
     assertThat(siteUser.getPassword()).isEqualTo(su.getPassword());
     assertThat(siteUser.getRoles()).isEqualTo(su.getRoles());
     assertThat(siteUser.isEnabled()).isEqualTo(su.isEnabled());
-    verify(userRepository, times(1)).findByUsername(su.getUsername());
+    verify(userRepository, times(1)).findById(2L);
   }
+
   @Test
-  void findByUsernameNotFound() throws ObjectNotFoundException {
+  void findByIdNotFound() throws ObjectNotFoundException {
     // Given
-    given(userRepository.findByUsername(Mockito.anyString())).willReturn(Optional.empty());
+    given(userRepository.findById(Mockito.anyLong())).willReturn(Optional.empty());
     // When
     Throwable thrown = catchThrowable(() -> {
-      SiteUser siteUser = userService.findByUsername("user");
+      SiteUser siteUser = userService.findById(8L);
     });
     // Then
-    assertThat(thrown).isInstanceOf(UsernameNotFoundException.class)
-            .hasMessage("Could not find user with username user");
-    verify(userRepository, times(1)).findByUsername(Mockito.anyString());
-  }*/
-  @Test
-  void findAllSuccess() {
-    given(userRepository.findAll()).willReturn(users);
-    List<SiteUser> userList = userService.findAll();
-    assertThat(userList.size()).isEqualTo(2);
-    verify(userRepository, times(1)).findAll();
+    assertThat(thrown).isInstanceOf(ObjectNotFoundException.class)
+            .hasMessage("Could not find user with id 8");
+    verify(userRepository, times(1)).findById(Mockito.anyLong());
   }
 
   @Test
   void createUserSuccess() {
     SiteUser newUser = new SiteUser();
-    newUser.setId(3L);
-    newUser.setPassword("password");
     newUser.setUsername("newUser");
+    newUser.setPassword("password");
     newUser.setRoles("user");
     newUser.setEnabled(true);
 
@@ -104,8 +116,9 @@ class UserServiceTest {
     given(passwordEncoder.encode(Mockito.anyString())).willReturn("password");
 
     SiteUser savedUser = userService.createUser(newUser);
-    assertThat(savedUser.getId()).isEqualTo(newUser.getId());
+
     assertThat(savedUser.getUsername()).isEqualTo(newUser.getUsername());
+    assertThat(savedUser.getPassword()).isEqualTo("password");
     assertThat(savedUser.getRoles()).isEqualTo(newUser.getRoles());
     assertThat(savedUser.isEnabled()).isEqualTo(newUser.isEnabled());
     verify(userRepository, times(1)).save(newUser);
@@ -115,42 +128,40 @@ class UserServiceTest {
   void updateUserSuccess() throws ObjectNotFoundException {
     SiteUser old = new SiteUser();
     old.setId(3L);
-    old.setPassword("password");
     old.setUsername("newUser");
+    old.setPassword("password");
     old.setRoles("user");
     old.setEnabled(true);
 
-    SiteUserDto update = new SiteUserDto(3L, "newUser", "user admin", false);
+    SiteUser update = new SiteUser();
+    old.setUsername("newUser-update");
+    old.setPassword("password");
+    old.setRoles("user");
+    old.setEnabled(true);
 
     given(userRepository.findById(3L)).willReturn(Optional.of(old));
     given(userRepository.save(old)).willReturn(old);
 
-    SiteUserDto siteUser = userService.updateUser(3L, update);
+    SiteUser su = userService.updateUser(3L, update);
 
-    assertThat(siteUser.id()).isEqualTo(update.id());
-    assertThat(siteUser.username()).isEqualTo(update.username());
-    assertThat(siteUser.roles()).isEqualTo(update.roles());
-    assertThat(siteUser.enabled()).isEqualTo(update.enabled());
+    assertThat(su.getId()).isEqualTo(3L);
+    assertThat(su.getUsername()).isEqualTo(update.getUsername());
+
+    verify(userRepository, times(1)).findById(3L);
     verify(userRepository, times(1)).save(old);
   }
   @Test
   void updateUserNotFound() throws ObjectNotFoundException {
-    SiteUser old = new SiteUser();
-    old.setId(3L);
-    old.setPassword("password");
-    old.setUsername("newUser");
-    old.setRoles("user");
-    old.setEnabled(true);
 
-    SiteUserDto update = new SiteUserDto(3L, "newUser", "user admin", false);
+    given(userRepository.findById(Mockito.anyLong())).willReturn(Optional.empty());
 
-    given(userRepository.findById(3L)).willReturn(Optional.empty());
-    Throwable thrown = catchThrowable(() -> {
-      SiteUserDto siteUser = userService.updateUser(3L, update);
+    Throwable thrown = assertThrows(ObjectNotFoundException.class, () -> {
+              userService.updateUser(3L, Mockito.mock(SiteUser.class));
     });
 
     assertThat(thrown).isInstanceOf(ObjectNotFoundException.class)
             .hasMessage("Could not find user with id 3");
+    verify(userRepository, times(1)).findById(3L);
   }
 
   @Test
@@ -170,15 +181,10 @@ class UserServiceTest {
   }
   @Test
   void deleteUserNotFound() throws ObjectNotFoundException {
-    SiteUser su = new SiteUser();
-    su.setId(3L);
-    su.setPassword("password");
-    su.setUsername("newUser");
-    su.setRoles("user");
-    su.setEnabled(true);
-    given(userRepository.findById(3L)).willReturn(Optional.empty());
 
-    Throwable thrown = catchThrowable(() -> {
+    given(userRepository.findById(Mockito.anyLong())).willReturn(Optional.empty());
+
+    Throwable thrown = assertThrows(ObjectNotFoundException.class, () -> {
       userService.deleteUser(3L);
     });
 

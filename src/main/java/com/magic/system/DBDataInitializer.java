@@ -60,41 +60,49 @@ public class DBDataInitializer implements CommandLineRunner {
 //    h2.setId(2);
     h2.setName("X man");
     h2.addMagic(m3);
-    h2.addMagic(m5);
-
 
     Hero h3 = new Hero();
 //    h3.setId(3);
     h3.setName("Spider man");
     h3.addMagic(m4);
 
+    Hero h4 = new Hero();
+//    h3.setId(4);
+    h3.setName("Wonder woman");
+    h3.addMagic(m5);
+
     heroRepository.save(h1);
     heroRepository.save(h2);
     heroRepository.save(h3);
+    heroRepository.save(h4);
 
     magicRepository.save(m6);
 
     SiteUser su1 = new SiteUser();
-    su1.setPassword("321");
+//    su1.setId(1L);
     su1.setUsername("admin");
+    su1.setPassword("321");
     su1.setRoles("admin");
     su1.setEnabled(true);
 
     SiteUser su2 = new SiteUser();
-    su2.setPassword("123");
+//    su2.setId(2L);
     su2.setUsername("user");
+    su2.setPassword("123");
     su2.setRoles("user");
     su2.setEnabled(true);
 
     SiteUser su3 = new SiteUser();
-    su3.setPassword("123");
+//    su3.setId(3L);
     su3.setUsername("guest");
+    su3.setPassword("123");
     su3.setRoles("user");
     su3.setEnabled(true);
 
     SiteUser su4 = new SiteUser();
-    su4.setPassword("123");
+//    su4.setId(4L);
     su4.setUsername("anonymous");
+    su4.setPassword("123");
     su4.setRoles("user");
     su4.setEnabled(false);
 

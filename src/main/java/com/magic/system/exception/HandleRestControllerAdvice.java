@@ -27,18 +27,21 @@ public class HandleRestControllerAdvice {
   public Result handleObjectNotFound(ObjectNotFoundException ex){
     return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
   }
+
   @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public Result handleUsernameNotFound(Exception ex){
     return new Result(false, StatusCode.UNAUTHORIZED,
             "The username or password is invalid.", ex.getMessage());
   }
+
   @ExceptionHandler(InvalidBearerTokenException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public Result handleInvalidBearerToken(InvalidBearerTokenException ex){
     return new Result(false, StatusCode.UNAUTHORIZED,
             "The token is invalid.", ex.getMessage());
   }
+
   @ExceptionHandler(AccessDeniedException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public Result handleAccessDenied(AccessDeniedException ex){

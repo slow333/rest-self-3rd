@@ -1,16 +1,16 @@
 package com.magic.magic;
 
+import com.magic.magic.converter.ToMagicDto;
+import com.magic.magic.converter.ToMagicEntity;
+import com.magic.magic.dto.MagicDto;
 import com.magic.system.Result;
 import com.magic.system.StatusCode;
 import com.magic.system.exception.ObjectNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
