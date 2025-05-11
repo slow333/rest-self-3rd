@@ -68,6 +68,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, url + "/users/**").access(userRequestAuthorizationManager)
             .requestMatchers(HttpMethod.POST, url + "/users").hasAuthority("ROLE_admin")
             .requestMatchers(HttpMethod.PUT, url + "/users/**").access(userRequestAuthorizationManager)
+            .requestMatchers(HttpMethod.PATCH, url + "/users/**").access(userRequestAuthorizationManager)
             .requestMatchers(HttpMethod.DELETE, url + "/users/**").hasAuthority("ROLE_admin")
             .requestMatchers(AntPathRequestMatcher.antMatcher("/h2-console/**")).permitAll()
             .anyRequest().authenticated()

@@ -1,5 +1,9 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="MagicApplication" type="Application" factoryName="Application" nameIsGenerated="true">
+    <envs>
+      <env name="datasource-password" value="1111" />
+      <env name="datasource-username" value="root" />
+    </envs>
     <option name="MAIN_CLASS_NAME" value="com.magic.MagicApplication" />
     <module name="magic" />
     <extension name="coverage">

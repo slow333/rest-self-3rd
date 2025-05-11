@@ -1,15 +1,14 @@
 spring:
-   application:
-      name: magic
-   datasource:
-      url: jdbc:h2:mem:magic
-      username: sa
-      password:
-   jpa:
-    show-sql: true
+   profiles:
+      active: dev
+   data:
+      redis:
+         host: localhost
+         port: 6379
 api:
    endpoint:
       baseUrl: /api/v1
+
 
 #logging:
 #   level:
