@@ -1,7 +1,10 @@
 package com.magic.user;
 
+import com.magic.client.redis.RedisCacheClient;
 import com.magic.system.exception.ObjectNotFoundException;
+import com.magic.system.exception.PasswordChangeIllegalArgException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +23,7 @@ public class UserService implements UserDetailsService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final RedisCacheClient redisCacheClient;
 
   public List<SiteUser> findAll() {
     return userRepository.findAll();
@@ -48,6 +52,7 @@ public class UserService implements UserDetailsService {
       oldUser.setUsername(update.getUsername());
       oldUser.setEnabled(update.isEnabled());
       oldUser.setRoles(update.getRoles());
+      redisCacheClient.delete("whiteList:" + userId);
     }
     return userRepository.save(oldUser);
   }
@@ -55,6 +60,7 @@ public class UserService implements UserDetailsService {
   public void deleteUser(Long userId) throws ObjectNotFoundException {
     userRepository.findById(userId)
             .orElseThrow(() -> new ObjectNotFoundException("user", userId));
+    redisCacheClient.delete("whiteList:" + userId);
     userRepository.deleteById(userId);
   }
 
@@ -63,5 +69,27 @@ public class UserService implements UserDetailsService {
     return userRepository.findByUsername(username)
             .map(MyUserPrincipal::new)
             .orElseThrow(() -> new UsernameNotFoundException("The username " + username + " is not found."));
+  }
+
+  public void changePassword(Long userId, String oldPassword,
+                             String newPassword, String confirmPassword) throws ObjectNotFoundException {
+    SiteUser su = userRepository.findById(userId)
+            .orElseThrow(() -> new ObjectNotFoundException("user", userId));
+
+    if(!passwordEncoder.matches(oldPassword, su.getPassword())) {
+      throw new BadCredentialsException("Old password is incorrect.");
+    }
+
+    if(!newPassword.equals(confirmPassword)) {
+      throw new PasswordChangeIllegalArgException("Confirm password is not correct.");
+    }
+
+    String passwordPolicy = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}$";
+    if(!newPassword.matches(passwordPolicy)) {
+      throw new PasswordChangeIllegalArgException("Password policy not confirm.");
+    }
+    redisCacheClient.delete("whiteList:" + userId);
+    su.setPassword(passwordEncoder.encode(newPassword));
+    userRepository.save(su);
   }
 }

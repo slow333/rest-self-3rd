@@ -1,14 +1,16 @@
 package com.magic.user;
 
+import com.magic.client.redis.RedisCacheClient;
 import com.magic.system.exception.ObjectNotFoundException;
+import com.magic.system.exception.PasswordChangeIllegalArgException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +33,8 @@ class UserServiceTest {
   private UserRepository userRepository;
   @Mock
   PasswordEncoder passwordEncoder;
+  @Mock
+  RedisCacheClient redisCacheClient;
 
   @InjectMocks
   private UserService userService;
@@ -201,5 +205,81 @@ class UserServiceTest {
 
     assertThat(thrown).isInstanceOf(ObjectNotFoundException.class)
             .hasMessage("Could not find user with id 3");
+  }
+  @Test
+  void changePasswordSuccess() throws ObjectNotFoundException {
+    SiteUser su = new SiteUser();
+    su.setId(3L);
+    su.setPassword("encryptedOldPassword");
+
+    given(userRepository.findById(3L)).willReturn(Optional.of(su));
+    given(passwordEncoder.matches(Mockito.anyString(), Mockito.anyString())).willReturn(true);
+    given(passwordEncoder.encode(Mockito.anyString())).willReturn("encryptedNewPassword");
+    given(userRepository.save(su)).willReturn(su);
+    doNothing().when(redisCacheClient).delete(Mockito.anyString());
+
+    userService.changePassword(3L, "plainOldPassword", "Abc12345", "Abc12345");
+
+    assertThat(su.getPassword()).isEqualTo("encryptedNewPassword");
+    verify(userRepository, times(1)).findById(3L);
+    verify(passwordEncoder, times(1)).encode(Mockito.anyString());
+    verify(passwordEncoder, times(1)).matches(Mockito.anyString(), Mockito.anyString());
+    verify(userRepository, times(1)).save(su);
+  }
+  @Test
+  void changePasswordNotFound() throws ObjectNotFoundException {
+    given(userRepository.findById(Mockito.anyLong())).willReturn(Optional.empty());
+
+    Throwable thrown = assertThrows(ObjectNotFoundException.class, () -> {
+      userService.changePassword(9L, "bc12345", "Abc12345", "Abc12345");
+    });
+    assertThat(thrown).isInstanceOf(ObjectNotFoundException.class)
+            .hasMessage("Could not find user with id 9");
+  }
+  @Test
+  void changePasswordOldPasswordIncorrect() throws ObjectNotFoundException {
+    SiteUser su = new SiteUser();
+    su.setId(3L);
+    su.setPassword("encryptedOldPassword");
+
+    given(userRepository.findById(3L)).willReturn(Optional.of(su));
+    given(passwordEncoder.matches(Mockito.anyString(), Mockito.anyString())).willReturn(false);
+
+    Exception ex = assertThrows(BadCredentialsException.class, () -> {
+      userService.changePassword(3L, "wrongOldPassword", "Abc12345", "Abc12345");
+    });
+    assertThat(ex).isInstanceOf(BadCredentialsException.class)
+            .hasMessage("Old password is incorrect.");
+
+  }
+  @Test
+  void changePasswordNewPasswordDoesNotMatchConfirmPassword() throws ObjectNotFoundException {
+    SiteUser su = new SiteUser();
+    su.setId(3L);
+    su.setPassword("encryptedOldPassword");
+
+    given(userRepository.findById(3L)).willReturn(Optional.of(su));
+    given(passwordEncoder.matches(Mockito.anyString(), Mockito.anyString())).willReturn(true);
+
+    Exception ex = assertThrows(PasswordChangeIllegalArgException.class, () -> {
+      userService.changePassword(3L, "unencryptedOldPassword", "Abc12345", "Abc123456");
+    });
+    assertThat(ex).isInstanceOf(PasswordChangeIllegalArgException.class)
+            .hasMessage("Confirm password is not correct.");
+  }
+  @Test
+  void changePasswordNewPasswordNotMatchPasswordPolicy() throws ObjectNotFoundException {
+    SiteUser su = new SiteUser();
+    su.setId(3L);
+    su.setPassword("encryptedOldPassword");
+
+    given(userRepository.findById(3L)).willReturn(Optional.of(su));
+    given(passwordEncoder.matches(Mockito.anyString(), Mockito.anyString())).willReturn(true);
+
+    Exception ex = assertThrows(PasswordChangeIllegalArgException.class, () -> {
+      userService.changePassword(3L, "unencryptedOldPassword", "simple", "simple");
+    });
+    assertThat(ex).isInstanceOf(PasswordChangeIllegalArgException.class)
+            .hasMessage("Password policy not confirm.");
   }
 }

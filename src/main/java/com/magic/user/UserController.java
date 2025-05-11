@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,5 +57,17 @@ public class UserController {
   public Result deleteUser(@PathVariable Long userId) throws ObjectNotFoundException {
     userService.deleteUser(userId);
     return new Result(true, StatusCode.SUCCESS, "Delete User Success.");
+  }
+
+  @PatchMapping("/{userId}/password")
+  public Result changePassword(@PathVariable Long userId,
+                               @RequestBody Map<String, String> passwordMap) throws ObjectNotFoundException {
+    String oldPassword = passwordMap.get("oldPassword");
+    String newPassword = passwordMap.get("newPassword");
+    String confirmPassword = passwordMap.get("confirmPassword");
+
+    userService.changePassword(userId, oldPassword, newPassword, confirmPassword);
+    return new Result(true, StatusCode.SUCCESS, "Change Password Success.", null);
+
   }
 }

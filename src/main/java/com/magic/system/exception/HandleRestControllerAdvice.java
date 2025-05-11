@@ -69,6 +69,12 @@ public class HandleRestControllerAdvice {
             "Provided arguments invalid.", map);
   }
 
+  @ExceptionHandler(PasswordChangeIllegalArgException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Result handlePasswordChangeIllegalArgumentException(PasswordChangeIllegalArgException ex){
+    return new Result(false, StatusCode.BAD_REQUEST, ex.getMessage());
+  }
+
   @ExceptionHandler(Exception.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public Result handleException(Exception ex){

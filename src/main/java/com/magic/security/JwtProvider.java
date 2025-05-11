@@ -30,16 +30,15 @@ public class JwtProvider {
             .stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(" "));
-//
-//    MyUserPrincipal principal = (MyUserPrincipal) authentication.getPrincipal();
-//    SiteUser siteUser = principal.getSiteUser();
+
+    MyUserPrincipal principal = (MyUserPrincipal) authentication.getPrincipal();
 
     JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuer("self")
             .issuedAt(now)
             .expiresAt(now.plus(expiresIn, ChronoUnit.HOURS))
             .subject(authentication.getName())
-            .claim("userId", ((MyUserPrincipal)authentication.getPrincipal()).getSiteUser().getId())
+            .claim("userId", principal.getSiteUser().getId())
             .claim("authorities", authorities)
             .build();
     return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

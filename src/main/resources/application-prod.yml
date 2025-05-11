@@ -1,0 +1,9 @@
+spring:
+   datasource:
+      url: jdbc:mariadb://127.0.0.1:3306/rest_data
+      username: ${datasource-username:root}
+      password: ${datasource-password:password}
+      driverClassName: org.mariadb.jdbc.Driver
+#   jpa:
+#      hibernate:
+#         ddl-auto: update
